@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{/home::head}">
+    <meta charset="UTF-8">
+    <title>Danh sách nhân viên</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+</head>
+<body>
+<div th:replace="~{/home::header}"></div>
+
+<div class="p-3">
+    <h2 class="text-center fw-bold text-light my-3">DANH SÁCH NHÂN VIÊN</h2>
+
+    <div th:if="${message}">
+        <div class="justify-content-center d-flex">
+            <div class="alert alert-success alert-dismissible fade show w-50 text-center">
+                <strong th:text="${message}"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg py-0 my-0">
+        <div class="container-fluid">
+            <button class="btn btn-primary btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#addEmployee">
+                <span class="fa-solid fa-person-circle-plus text-light h5 my-auto me-1"></span>
+                <span class="text-light"> Thêm mới nhân viên</span>
+            </button>
+
+            <form class="d-flex my-2" role="search" th:action="@{/employee}">
+                <input class="form-control me-2" type="text" placeholder="Nhập tên.." aria-label="Search"
+                       name="nameSearch">
+
+                <input class="form-control me-2" type="text" placeholder="Nhập địa chỉ.." aria-label="Search"
+                       name="addressSearch">
+
+                <input class="form-control me-2" type="text" placeholder="Nhập SĐT.." aria-label="Search"
+                       name="phoneSearch">
+                <button class="btn btn-light btn-outline-primary" type="submit" name="action" value="search">
+                    <i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+    </nav>
+
+    <table class="table table-light table-striped table-bordered">
+        <tr class="table-dark text-light">
+            <th class="text-center"><i class="fa-sharp fa-solid fa-bolt"></i></th>
+            <th>Tên nhân viên</th>
+            <th>Ngày sinh</th>
+            <th>SĐT</th>
+            <th>Địa chỉ</th>
+            <th>Trình độ</th>
+            <th>Vị trí</th>
+            <th>Bộ phận</th>
+            <th class="text-center">Xem</th>
+            <th class="text-center">Sửa</th>
+            <th class="text-center">Xóa</th>
+        </tr>
+
+        <tr th:each="employee, status : ${employeeList}">
+            <td class="text-center" th:text="${status.count + employeeList.number * 5}"></td>
+            <td th:text="${employee.employeeName}"></td>
+            <td th:text="${employee.employeeBirthday}"></td>
+            <td th:text="${employee.employeePhone}"></td>
+            <td th:text="${employee.employeeAddress}"></td>
+            <td th:text="${employee.educationDegree.educationDegreeName}"></td>
+            <td th:text="${employee.position.positionName}"></td>
+            <td th:text="${employee.divisions.divisionName}"></td>
+
+            <td class="text-center">
+                <button th:attr="onclick=|viewEmployee('${employee.employeeName}', '${employee.employeeBirthday}',
+                '${employee.employeeIdCard}', '${employee.employeeSalary}', '${employee.employeePhone}',
+                '${employee.employeeEmail}', '${employee.employeeAddress}', '${employee.position.positionName}',
+                '${employee.educationDegree.educationDegreeName}', '${employee.divisions.divisionName}')|"
+                        class="btn btn-warning btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#viewEmployee">
+                    <div class="text-dark">Chi tiết</div>
+                </button>
+            </td>
+
+<!--            <td class="text-center">-->
+<!--                <a th:href="@{/employee/edit/__${employee.employeeId}__}">-->
+<!--                    <button class="btn btn-success btn-outline-secondary btn-sm">-->
+<!--                        <span class="fa-solid fa-user-pen text-light h6 m-auto px-2"></span>-->
+<!--                    </button>-->
+<!--                </a>-->
+<!--            </td>-->
+            <td class="text-center">
+                <button th:attr="onclick=|editEmployee('${employee.employeeId}','${employee.employeeName}', '${employee.employeeBirthday}',
+                '${employee.employeeIdCard}', '${employee.employeeSalary}', '${employee.employeePhone}',
+                '${employee.employeeEmail}', '${employee.employeeAddress}', '${employee.position.positionId}',
+                '${employee.educationDegree.educationDegreeId}', '${employee.divisions.divisionId}')|"
+                        class="btn btn-success btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#editEmployee">
+                    <div class="text-dark">Sửa</div>
+                </button>
+            </td>
+
+            <td class="text-center">
+                <button th:attr="onclick=|deleteEmployee('${employee.employeeId}', '${employee.employeeName}')|"
+                        class="btn btn-danger btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#deleteEmployee">
+                    <div class="text-dark">Xóa</div>
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <nav aria-label="..." class="justify-content-center d-flex">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" th:href="@{'/employee'(page=${employeeList.number - 1}, nameSearch=${nameSearch},
+                phoneSearch=${phoneSearch}, addressSearch=${addressSearch})}" th:if="${employeeList.hasPrevious()}">
+                    &laquo;</a>
+            </li>
+            <li class="page-item disabled" th:unless="${employeeList.hasPrevious()}">
+                <a class="page-link">&laquo;</a>
+            </li>
+
+            <li class="page-item"><a class="page-link" th:href="@{'/employee'(page=${employeeList.number - 1},
+            nameSearch=${nameSearch}, phoneSearch=${phoneSearch}, addressSearch=${addressSearch})}"
+                                     th:if="${employeeList.hasPrevious()}" th:text="${employeeList.number}"></a></li>
+
+            <li class="page-item active">
+                <a class="page-link" th:href="@{'/employee'(page=${employeeList.number}, nameSearch=${nameSearch},
+                phoneSearch=${phoneSearch}, addressSearch=${addressSearch})}" th:text="${employeeList.number + 1}">
+                    <span class="sr-only">(trang hiện tại)</span></a>
+            </li>
+
+            <li class="page-item"><a class="page-link" th:href="@{'/employee'(page=${employeeList.number + 1},
+            nameSearch=${nameSearch}, phoneSearch=${phoneSearch}, addressSearch=${addressSearch})}"
+                                     th:if="${employeeList.hasNext()}" th:text="${employeeList.number + 2}"></a>
+            </li>
+
+            <li class="page-item">
+                <a class="page-link" th:href="@{'/employee'(page=${employeeList.number + 1}, nameSearch=${nameSearch},
+                phoneSearch=${phoneSearch}, addressSearch=${addressSearch})}"
+                   th:if="${employeeList.hasNext()}">&raquo;</a>
+            </li>
+            <li class="page-item disabled" th:unless="${employeeList.hasNext()}">
+                <a class="page-link">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<footer th:replace="~{/home::footer}"></footer>
+
+<div class="modal fade" id="deleteEmployee" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modalCSS">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel1">Bạn có chắc chắn muốn xóa?</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form th:action="@{/employee/delete}">
+                <div class="modal-body">
+                    <span class="h6">Nhân viên:</span><strong id="nameDelete" class="text-danger ps-2"></strong>
+                    <input type="hidden" name="idDelete" id="idDelete" readonly/>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger" value="delete">Xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewEmployee" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modalCSS">
+            <div class="modal-header">
+                <h4 class="modal-title text-center" id="exampleModalLabel2">THÔNG TIN NHÂN VIÊN</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <table>
+                    <tr>
+                        <td class="h6 pe-3">Tên nhân viên:</td>
+                        <td id="name" class="text-primary h6"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Ngày sinh:</td>
+                        <td id="birthday" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Số CMND/CCCD:</td>
+                        <td id="idCard" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Lương:</td>
+                        <td id="salary" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Số điện thoại:</td>
+                        <td id="phone" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Email:</td>
+                        <td id="email" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Địa chỉ:</td>
+                        <td id="address" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Trình độ học vấn:</td>
+                        <td id="educationDegree" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Bộ phận:</td>
+                        <td id="division" class="text-primary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6 pe-3">Vị trí:</td>
+                        <td id="position" class="text-primary"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addEmployee" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="border border-2 border-success p-3 rounded formCSS" th:action="@{/employee/add}"
+                  th:object="${employeeDto}" method="POST">
+                <div class="modal-header">
+                    <h3 class="modal-title fw-bold text-primary" id="exampleModalLabel3">THÊM MỚI NHÂN VIÊN</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nameAdd" class="h6">Tên nhân viên:</label>
+                        <div class="input-group">
+                            <input type="text" id="nameAdd" class="form-control" placeholder="Nhập tên nhân viên.."
+                                   th:field="*{employeeName}" required
+                                   pattern="^([\p{Lu}][\p{Ll}]{1,8})(\s([\p{Lu}]|[\p{Lu}][\p{Ll}]{1,10})){0,5}$"
+                                   title="Tên nhân viên không được chứa số, và các kí tự đầu tiên của mỗi từ phải viết hoa."/>
+                            <span class="input-group-text"><i class="fa-solid fa-person-circle-question"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="dateOfBirth" class="h6">Ngày sinh:</label>
+                        <input type="date" id="dateOfBirth" class="form-control" th:field="*{employeeBirthday}"
+                               th:min="${minAge}" th:max="${maxAge}"/>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="idCardAdd" class="h6">Số CMND/CCCD:</label>
+                        <div class="input-group">
+                            <input type="text" id="idCardAdd" class="form-control" placeholder="Nhập số CMND/CCCD.."
+                                   th:field="*{employeeIdCard}" required pattern="^\d{9}|\d{12}$"
+                                   title="Số CMND/CCCD phải đúng định dạng XXXXXXXXX hoặc XXXXXXXXXXXX (X là số 0-9)."/>
+                            <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="salaryAdd" class="h6">Lương (VNĐ):</label>
+                        <div class="input-group">
+                            <input type="number" id="salaryAdd" class="form-control" placeholder="Nhập lương..."
+                                   th:field="*{employeeSalary}" required pattern="^[1-9]\d*$"
+                                   title="Lương (VNĐ) phải là số nguyên dương."/>
+                            <span class="input-group-text"><i class="fa-solid fa-money-bill-wave"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="phoneAdd" class="h6">Số điện thoại:</label>
+                        <div class="input-group">
+                            <input type="text" id="phoneAdd" class="form-control" placeholder="Nhập SĐT.."
+                                   th:field="*{employeePhone}" required pattern="^(0|[(]84[)][+])9[01]\d{7}$"
+                                   title="Số điện thoại phải đúng định dạng 090xxxxxxx hoặc 091xxxxxxx hoặc (84)+90xxxxxxx hoặc (84)+91xxxxxxx."/>
+                            <span class="input-group-text"><i class="fa-solid fa-square-phone"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="emailAdd" class="h6">Email:</label>
+                        <div class="input-group">
+                            <input type="text" id="emailAdd" class="form-control" placeholder="Nhập email.."
+                                   th:field="*{employeeEmail}" required
+                                   pattern="^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]{2,}(\.[A-Za-z0-9]{2,}){1,2}$"
+                                   title="Địa chỉ email phải đúng định dạng."/>
+                            <span class="input-group-text"><i class="fa-solid fa-envelope-circle-check"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="addressAdd" class="h6">Địa chỉ:</label>
+                        <div class="input-group">
+                            <input type="text" id="addressAdd" class="form-control" placeholder="Nhập địa chỉ.."
+                                   th:field="*{employeeAddress}" required pattern="^.+$"
+                                   title="Vui lòng không để trống địa chỉ."/>
+                            <span class="input-group-text"><i class="fa-solid fa-map-location-dot"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label class="h6" for="positionAdd">Vị trí:</label>
+                        <div class="input-group">
+                            <select id="positionAdd" class="form-select" th:field="*{position.positionId}">
+                                <option th:each="item : ${positionList}" th:value="${item.positionId}"
+                                        th:text="${item.positionName}"></option>
+                            </select>
+                            <span class="input-group-text"><i class="fa-solid fa-map"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label class="h6" for="educationDegreeAdd">Trình độ học vấn:</label>
+                        <div class="input-group">
+                            <select id="educationDegreeAdd" class="form-select"
+                                    th:field="*{educationDegree.educationDegreeId}">
+                                <option th:each="item : ${educationDegreeList}" th:value="${item.educationDegreeId}"
+                                        th:text="${item.educationDegreeName}"></option>
+                            </select>
+                            <span class="input-group-text"><i class="fa-solid fa-graduation-cap"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label class="h6" for="divisionAdd">Bộ phận:</label>
+                        <div class="input-group">
+                            <select id="divisionAdd" class="form-select" th:field="*{divisions.divisionId}">
+                                <option th:each="item : ${divisionList}" th:value="${item.divisionId}"
+                                        th:text="${item.divisionName}"></option>
+                            </select>
+                            <span class="input-group-text"><i class="fa-brands fa-creative-commons-nd"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-success" value="delete">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editEmployee" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="border border-2 border-success p-3 rounded formCSS" th:action="@{/employee/update}"
+                  th:object="${employeeDto}" method="POST">
+                <div class="modal-header">
+                    <h3 class="modal-title fw-bold text-primary" id="exampleModalLabel4">CHỈNH SỬA NHÂN VIÊN</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="idEdit" class="form-control" th:field="*{employeeId}" readonly/>
+
+                    <div class="form-group">
+                        <label for="nameEdit" class="h6">Tên nhân viên:</label>
+                        <div class="input-group">
+                            <input type="text" id="nameEdit" class="form-control" placeholder="Nhập tên nhân viên.."
+                                   th:field="*{employeeName}" required
+                                   pattern="^([\p{Lu}][\p{Ll}]{1,8})(\s([\p{Lu}]|[\p{Lu}][\p{Ll}]{1,10})){0,5}$"
+                                   title="Tên nhân viên không được chứa số, và các kí tự đầu tiên của mỗi từ phải viết hoa."/>
+                            <span class="input-group-text"><i class="fa-solid fa-person-circle-question"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="dateOfBirthEdit" class="h6">Ngày sinh:</label>
+                        <input type="date" id="dateOfBirthEdit" class="form-control" th:field="*{employeeBirthday}"
+                               th:min="${minAge}" th:max="${maxAge}"/>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="idCardEdit" class="h6">Số CMND/CCCD:</label>
+                        <div class="input-group">
+                            <input type="text" id="idCardEdit" class="form-control" placeholder="Nhập số CMND/CCCD.."
+                                   th:field="*{employeeIdCard}" required pattern="^\d{9}|\d{12}$"
+                                   title="Số CMND/CCCD phải đúng định dạng XXXXXXXXX hoặc XXXXXXXXXXXX (X là số 0-9)."/>
+                            <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="salaryEdit" class="h6">Lương (VNĐ):</label>
+                        <div class="input-group">
+                            <input type="number" id="salaryEdit" class="form-control" placeholder="Nhập lương..."
+                                   th:field="*{employeeSalary}" required pattern="^[1-9]\d*$"
+                                   title="Lương (VNĐ) phải là số nguyên dương."/>
+                            <span class="input-group-text"><i class="fa-solid fa-money-bill-wave"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="phoneEdit" class="h6">Số điện thoại:</label>
+                        <div class="input-group">
+                            <input type="text" id="phoneEdit" class="form-control" placeholder="Nhập SĐT.."
+                                   th:field="*{employeePhone}" required pattern="^(0|[(]84[)][+])9[01]\d{7}$"
+                                   title="Số điện thoại phải đúng định dạng 090xxxxxxx hoặc 091xxxxxxx hoặc (84)+90xxxxxxx hoặc (84)+91xxxxxxx."/>
+                            <span class="input-group-text"><i class="fa-solid fa-square-phone"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="emailEdit" class="h6">Email:</label>
+                        <div class="input-group">
+                            <input type="text" id="emailEdit" class="form-control" placeholder="Nhập email.."
+                                   th:field="*{employeeEmail}" required
+                                   pattern="^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]{2,}(\.[A-Za-z0-9]{2,}){1,2}$"
+                                   title="Địa chỉ email phải đúng định dạng."/>
+                            <span class="input-group-text"><i class="fa-solid fa-envelope-circle-check"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label for="addressEdit" class="h6">Địa chỉ:</label>
+                        <div class="input-group">
+                            <input type="text" id="addressEdit" class="form-control" placeholder="Nhập địa chỉ.."
+                                   th:field="*{employeeAddress}" required pattern="^.+$"
+                                   title="Vui lòng không để trống địa chỉ."/>
+                            <span class="input-group-text"><i class="fa-solid fa-map-location-dot"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label class="h6" for="positionEdit">Vị trí:</label>
+                        <div class="input-group">
+                            <select id="positionEdit" class="form-select" th:field="*{position.positionId}">
+                                <option th:each="item : ${positionList}" th:value="${item.positionId}"
+                                        th:text="${item.positionName}"></option>
+                            </select>
+                            <span class="input-group-text"><i class="fa-solid fa-map"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label class="h6" for="educationDegreeEdit">Trình độ học vấn:</label>
+                        <div class="input-group">
+                            <select id="educationDegreeEdit" class="form-select"
+                                    th:field="*{educationDegree.educationDegreeId}">
+                                <option th:each="item : ${educationDegreeList}" th:value="${item.educationDegreeId}"
+                                        th:text="${item.educationDegreeName}"></option>
+                            </select>
+                            <span class="input-group-text"><i class="fa-solid fa-graduation-cap"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 form-group">
+                        <label class="h6" for="divisionEdit">Bộ phận:</label>
+                        <div class="input-group">
+                            <select id="divisionEdit" class="form-select" th:field="*{divisions.divisionId}">
+                                <option th:each="item : ${divisionList}" th:value="${item.divisionId}"
+                                        th:text="${item.divisionName}"></option>
+                            </select>
+                            <span class="input-group-text"><i class="fa-brands fa-creative-commons-nd"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-success" value="delete">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function deleteEmployee(id, name) {
+        document.getElementById("idDelete").value = id;
+        document.getElementById("nameDelete").innerText = name;
+        debugger
+    }
+
+    function viewEmployee(name, birthday, idCard, salary, phone, email, address, position, educationDegree, division) {
+        document.getElementById("name").innerText = name;
+        document.getElementById("birthday").innerText = birthday;
+        document.getElementById("idCard").innerText = idCard;
+        document.getElementById("salary").innerText = "₫ " + salary;
+        document.getElementById("phone").innerText = phone;
+        document.getElementById("email").innerText = email;
+        document.getElementById("address").innerText = address;
+        document.getElementById("position").innerText = position;
+        document.getElementById("educationDegree").innerText = educationDegree;
+        document.getElementById("division").innerText = division;
+        debugger
+    }
+
+    function editEmployee(id, name, birthday, idCard, salary, phone, email, address, position, educationDegree, division) {
+        document.getElementById("idEdit").value = id;
+        document.getElementById("nameEdit").value = name;
+
+        let arr = birthday.split("/");
+        document.getElementById("dateOfBirthEdit").value = arr[2] + "-" + arr[1] + "-" + arr[0];
+
+        document.getElementById("idCardEdit").value = idCard;
+        document.getElementById("salaryEdit").value = salary;
+        document.getElementById("phoneEdit").value = phone;
+        document.getElementById("emailEdit").value = email;
+        document.getElementById("addressEdit").value = address;
+        document.getElementById("positionEdit").value = position;
+        document.getElementById("educationDegreeEdit").value = educationDegree;
+        document.getElementById("divisionEdit").value = division;
+    }
+</script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+        crossorigin="anonymous">
+</script>
+</html>
