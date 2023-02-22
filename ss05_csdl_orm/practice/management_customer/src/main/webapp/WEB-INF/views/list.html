@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+<h1 class="text-danger text-center">Product List</h1>
+<span class="btn btn-info m-3"><a href="/create">Create Product</a></span>
+<form action="/" method="get">
+  <span class="d-flex"><input class="form-control me-2 w-25 " type="text" placeholder="SearchName"
+                              name="name" aria-label="Search">
+    <button class="btn btn-success" type="submit">Search</button></span>
+</form>
+<table class="table table-hover">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Description</th>
+        <th>Producer</th>
+        <th>Update</th>
+        <th>Delete</th>
+        <th>Detail</th>
+    </tr>
+    <tr th:each="product :${productList}">
+        <td th:text="${product.getId()}"></td>
+        <td th:text="${product.getName()}"></td>
+        <td th:text="${product.getPrice()}"></td>
+        <td th:text="${product.getDescription()}"></td>
+        <td th:text="${product.getProducer()}"></td>
+        <td><a th:href="@{/update/{id}(id=${product.id})}">
+            <buton class="btn btn-success">Update</buton>
+        </a></td>
+        <td>
+            <button th:onclick="|infoToModal('${product.id}','${product.name}')|" class="btn btn-danger"
+                    type="button" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Delete
+            </button>
+        </td>
+        <td>
+            <button th:onclick="|infoToModalDetail('${product.id}','${product.name}','${product.price}','${product.description}','${product.producer}')|"
+                    class="btn btn-warning"
+                    type="button" data-bs-toggle="modal" data-bs-target="#detailModal">
+                Detail
+            </button>
+        </td>
+    </tr>
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="/delete" method="get">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title text-danger" id="exampleModalLabel">Product</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body ">
+                        <b>ID Product :</b>
+                        <input type="text" readonly name="id" id="deleteId" class="form-control"><br>
+                        <b>Product Name :</b>
+                        <input type="text" readonly name="name" id="deleteName" class="form-control"><br>
+                        <h3 class="text-danger">Are you sure want delete </h3>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" name="action" value="delete">Yes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="/detail" method="get">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title text-danger" id="exampleModalLabel1">Product</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body ">
+                        <b>ID Product :</b>
+                        <input type="text" readonly name="id" id="detailId" class="form-control"><br>
+                        <b>Product Name :</b>
+                        <input type="text" readonly name="name" id="detailName" class="form-control"><br>
+                        <b>Product Price :</b>
+                        <input type="text" readonly name="price" id="detailPrice" class="form-control">
+                        <br><b>Product Description :</b>
+                        <input type="text" readonly name="description" id="detailDescription" class="form-control">
+                        <br><br><b>Product Producer :</b>
+                        <input type="text" readonly name="producer" id="detailProducer" class="form-control"><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</table>
+<script>
+    function infoToModal(id, name) {
+        document.getElementById("deleteId").value = id;
+        document.getElementById("deleteName").value = name;
+    }
+
+    function infoToModalDetail(id, name, price, description, producer) {
+        document.getElementById("detailId").value = id;
+        document.getElementById("detailName").value = name;
+        document.getElementById("detailPrice").value = price;
+        document.getElementById("detailDescription").value = description;
+        document.getElementById("detailProducer").value = producer;
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</body>
+</html>

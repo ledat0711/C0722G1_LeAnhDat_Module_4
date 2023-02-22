@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog list</title>
+    <script src="../jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="../../static/style/bootstrap/bootstrap.min.css">
+</head>
+<body>
+<h1 class="text-danger text-center">Danh sách Blog</h1>
+<input type="text" id="sname">
+<button class="btn-danger" id="btnSearch">Tìm kiếm</button>
+<input id="STT" value="1" hidden>
+<table class="table">
+    <thead class="table-active">
+    <tr>
+        <th>STT</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody class="table-info" id="bodyBlog">
+
+    </tbody>
+</table>
+<div class="d-flex justify-content-center">
+    <button class="btn btn-success" id="showMore"> Xem thêm</button>
+</div>
+<script src="../../static/style/jquery/jquery-3.6.0.min.js"></script>
+<script>
+    var pageNumber = 0;
+    $(document).ready(function () {
+        getPageBlog(pageNumber);
+        $("#showMore").click(function () {
+            pageNumber++;
+            getPageBlog(pageNumber);
+        })
+        $("#btnSearch").click(function () {
+            $("#bodyBlog").empty();
+            $("#STT").val(1);
+            pageNumber = 0;
+            getPageBlog(pageNumber);
+        })
+
+    });
+
+    function getPageBlog(pageNumber) {
+        let sname = $("#sname").val();
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            type: "GET",
+            url: "http://localhost:8080/blogRest/list?page=" + pageNumber + "&name=" + sname + "&author="
+            ,
+            success: function (data) {
+                console.log(data);
+                let blogList = data.content;
+                console.log(blogList);
+                let htmlString = '';
+
+                for (let i = 0; i < blogList.length; i++) {
+                    let stt = $("#STT").val();
+                    $("#STT").val(parseInt(stt) + 1);
+                    htmlString += `<tr>
+                        <td>${stt}</td>
+                        <td>${blogList[i].name}</td>
+                        <td>${blogList[i].category.name}</td>
+                        <td>
+                            <a class="btn btn-warning" href="http://localhost:8080/update/${blogList[i].id}">Update</a>
+                        </td>
+                    </tr>`;
+                }
+                $("#bodyBlog").append(htmlString);
+                console.log(htmlString);
+            },
+            error: function (resultError) {
+            }
+        })
+    }
+</script>
+<script src="../../static/style/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>

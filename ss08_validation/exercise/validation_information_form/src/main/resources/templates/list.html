@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+<p th:text="${msg}"></p>
+<a class="btn btn-primary btn-lg" href="/create">Create New User</a>
+<div><h1>USER LIST</h1></div>
+<table class="table table-dark table-borderless">
+    <tr>
+        <th>No.</th>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Phone Number</th>
+        <th>Age</th>
+        <th>Email</th>
+    </tr>
+    <tr th:each="user,loop : ${userList}">
+        <td th:text="${loop.count}"></td>
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.firstName}"></td>
+        <td th:text="${user.lastName}"></td>
+        <td th:text="${user.phoneNumber}"></td>
+        <td th:text="${user.age}"></td>
+        <td th:text="${user.email}"></td>
+    </tr>
+</table>
+</body>
+</html>

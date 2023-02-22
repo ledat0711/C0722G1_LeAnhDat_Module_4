@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/layout :: head">
+</head>
+<body>
+<h3>Music Management</h3>
+<p>
+    <a class="btn btn-success" th:href="@{/create}">
+        Create new song information
+    </a>
+</p>
+
+<table id="musics" class="table table-striped">
+    <thead>
+    <tr>
+        <th>No.</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Singer</th>
+        <th>Category</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="musics,loop : ${musicList}">
+        <td th:text="${loop.count}"></td>
+        <td th:text="${musics.id}"></td>
+        <td th:text="${musics.name}"></td>
+        <td th:text="${musics.singer}"></td>
+        <td th:text="${musics.category}"></td>
+        <td>
+            <a class="btn btn-warning" th:href="@{/update(id=${musics.id})}">UPDATE</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
